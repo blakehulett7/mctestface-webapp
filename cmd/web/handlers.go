@@ -17,7 +17,7 @@ func (app *State) Home(w http.ResponseWriter, r *http.Request) {
 
 func (app *State) Render(w http.ResponseWriter, r *http.Request, template_file string, data *TemplateData) error {
 	log.Println("./templates/" + template_file)
-	t, err := template.ParseFiles("./templates/" + template_file)
+	t, err := template.ParseFiles("../../templates/" + template_file)
 	if err != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 		return err
