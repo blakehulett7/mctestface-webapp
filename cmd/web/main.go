@@ -9,7 +9,7 @@ type State struct {
 }
 
 func main() {
-	log.Println("Jesus is Lord!")
+	log.Println("Dominus Iesus Christus")
 
 	app := State{}
 	router := app.Routes()
