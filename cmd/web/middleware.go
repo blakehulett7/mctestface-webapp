@@ -36,7 +36,7 @@ func GetIP(r *http.Request) (string, error) {
 
 	user_ip := net.ParseIP(ip)
 	if user_ip == nil {
-		return "", fmt.Errorf("userip: %q is not IP:port", r.RemoteAddr)
+		return "", fmt.Errorf("user ip: %q is not IP:port", r.RemoteAddr)
 	}
 
 	forward := r.Header.Get("X-Forwarded-For")
