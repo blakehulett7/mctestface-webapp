@@ -7,10 +7,11 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
-func (state *State) Routes() http.Handler {
+func (app *State) Routes() http.Handler {
 	router := chi.NewRouter()
-
 	router.Use(middleware.Recoverer)
+
+	router.Get("/", app.Home)
 
 	return router
 }
