@@ -10,6 +10,7 @@ import (
 func (app *State) Routes() http.Handler {
 	router := chi.NewRouter()
 	router.Use(middleware.Recoverer)
+	router.Use(app.AddIpToContext)
 
 	router.Get("/", app.Home)
 
