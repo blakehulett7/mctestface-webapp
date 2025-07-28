@@ -13,6 +13,7 @@ func (app *State) Routes() http.Handler {
 	router.Use(app.AddIpToContext)
 
 	router.Get("/", app.Home)
+	router.Post("/login", app.Login)
 
 	router.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("../../static"))))
 
