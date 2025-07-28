@@ -37,21 +37,37 @@ func Test_app_Handlers(t *testing.T) {
 }
 
 func Test_app_Home(t *testing.T) {
-	req, _ := http.NewRequest("GET", "/", nil)
-	req = AddContextAndSessionToRequest(req, app)
-
-	w := httptest.NewRecorder()
-
-	handler := http.HandlerFunc(app.Home)
-	handler.ServeHTTP(w, req)
-
-	if w.Result().StatusCode != http.StatusOK {
-		t.Error("Expected status 200 but did not get it")
+	tests := []struct {
+		Name         string
+		PutInSession string
+		ExpectedHTML string
+	}{
+		{"first visit", "", "<small>From session:"},
+		{"second visit", "kyrie eleison", "<small>From session: kyrie eleison"},
 	}
 
-	body, _ := io.ReadAll(w.Body)
-	if !strings.Contains(string(body), "<small>From session:") {
-		t.Error("not getting back our session info")
+	for _, test := range tests {
+		req, _ := http.NewRequest("GET", "/", nil)
+		req = AddContextAndSessionToRequest(req, app)
+		app.Session.Destroy(req.Context())
+
+		if test.PutInSession != "" {
+			app.Session.Put(req.Context(), "test", test.PutInSession)
+		}
+
+		w := httptest.NewRecorder()
+
+		handler := http.HandlerFunc(app.Home)
+		handler.ServeHTTP(w, req)
+
+		if w.Result().StatusCode != http.StatusOK {
+			t.Error("Expected status 200 but did not get it")
+		}
+
+		body, _ := io.ReadAll(w.Body)
+		if !strings.Contains(string(body), test.ExpectedHTML) {
+			t.Errorf("%s failed: not getting back expected %s", test.Name, test.ExpectedHTML)
+		}
 	}
 }
 
