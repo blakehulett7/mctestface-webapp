@@ -63,10 +63,5 @@ func (app *State) Render(w http.ResponseWriter, r *http.Request, template_file s
 
 	data.IP = app.IpFromContext(r.Context())
 
-	err = t.Execute(w, data)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return t.Execute(w, data)
 }
