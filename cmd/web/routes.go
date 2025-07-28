@@ -9,8 +9,10 @@ import (
 
 func (app *State) Routes() http.Handler {
 	router := chi.NewRouter()
+
 	router.Use(middleware.Recoverer)
 	router.Use(app.AddIpToContext)
+	router.Use(app.Session.LoadAndSave)
 
 	router.Get("/", app.Home)
 	router.Post("/login", app.Login)
