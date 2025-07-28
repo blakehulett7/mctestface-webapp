@@ -18,7 +18,6 @@ func (app *State) IpFromContext(ctx context.Context) string {
 func (app *State) AddIpToContext(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ip, err := GetIP(r)
-		fmt.Println(ip)
 		if err != nil {
 			ip = "unknown"
 		}
@@ -48,5 +47,5 @@ func GetIP(r *http.Request) (string, error) {
 		ip = "forward"
 	}
 
-	return "unknown", err
+	return ip, err
 }
