@@ -7,8 +7,6 @@ import (
 	"testing"
 )
 
-var app State
-
 func Test_application_AddIPToContext(t *testing.T) {
 	tests := []struct {
 		HeaderName  string

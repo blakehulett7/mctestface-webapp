@@ -44,7 +44,7 @@ func (app *State) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *State) Render(w http.ResponseWriter, r *http.Request, template_file string, data *TemplateData) error {
-	t, err := template.ParseFiles(path.Join(path_to_templates, template_file))
+	t, err := template.ParseFiles(path.Join(path_to_templates, template_file), path.Join(path_to_templates, "base.html"))
 	if err != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 		return err

@@ -16,7 +16,6 @@ func Test_app_Handlers(t *testing.T) {
 		{"NotFound", "/nirvana", http.StatusNotFound},
 	}
 
-	var app State
 	routes := app.Routes()
 
 	test_server := httptest.NewTLSServer(routes)

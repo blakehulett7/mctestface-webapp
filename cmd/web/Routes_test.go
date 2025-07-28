@@ -14,10 +14,10 @@ func Test_app_Routes(t *testing.T) {
 		Method string
 	}{
 		{"/", "GET"},
+		{"/login", "POST"},
 		{"/static/", "GET"},
 	}
 
-	var app State
 	router := app.Routes()
 
 	chi_routes := router.(chi.Routes)
