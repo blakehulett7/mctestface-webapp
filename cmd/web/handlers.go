@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -42,7 +41,8 @@ func (app *State) Login(w http.ResponseWriter, r *http.Request) {
 	form.Required("email", "password")
 
 	if !form.Valid() {
-		fmt.Fprint(w, "failed validation")
+		app.Session.Put(r.Context(), "error", "Invalid login credentials")
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
@@ -52,14 +52,21 @@ func (app *State) Login(w http.ResponseWriter, r *http.Request) {
 	user, err := app.DB.GetUserByEmail(email)
 	if err != nil {
 		log.Println(err)
+		app.Session.Put(r.Context(), "error", "Invalid login credentials")
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
-	log.Println("From database:", user.FirstName)
+	log.Println(password, user)
 
-	log.Println(email, password)
+	app.Session.RenewToken(r.Context())
 
-	fmt.Fprint(w, email)
+	app.Session.Put(r.Context(), "flash", "Log in successful!")
+	http.Redirect(w, r, "/user/profile", http.StatusSeeOther)
+}
+
+func (app *State) Profile(w http.ResponseWriter, r *http.Request) {
+	app.Render(w, r, "profile.html", &TemplateData{})
 }
 
 func (app *State) Render(w http.ResponseWriter, r *http.Request, template_file string, data *TemplateData) error {

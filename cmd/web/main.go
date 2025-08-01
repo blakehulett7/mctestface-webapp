@@ -26,8 +26,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer conn.Close()
 
-	app.DB = db.PostgresConn{conn}
+	app.DB = db.PostgresConn{DB: conn}
 	app.Session = GetSession()
 
 	router := app.Routes()
