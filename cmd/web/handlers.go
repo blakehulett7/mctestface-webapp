@@ -6,13 +6,18 @@ import (
 	"net/http"
 	"path"
 	"time"
+
+	"github.com/blakehulett7/mctestface-webapp/pkg/data"
 )
 
 var path_to_templates = "../../templates/"
 
 type TemplateData struct {
-	IP   string
-	Data map[string]any
+	Data  map[string]any
+	Error string
+	Flash string
+	IP    string
+	User  data.User
 }
 
 func (app *State) Home(w http.ResponseWriter, r *http.Request) {
@@ -69,14 +74,17 @@ func (app *State) Profile(w http.ResponseWriter, r *http.Request) {
 	app.Render(w, r, "profile.html", &TemplateData{})
 }
 
-func (app *State) Render(w http.ResponseWriter, r *http.Request, template_file string, data *TemplateData) error {
+func (app *State) Render(w http.ResponseWriter, r *http.Request, template_file string, td *TemplateData) error {
 	t, err := template.ParseFiles(path.Join(path_to_templates, template_file), path.Join(path_to_templates, "base.html"))
 	if err != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 		return err
 	}
 
-	data.IP = app.IpFromContext(r.Context())
+	td.IP = app.IpFromContext(r.Context())
 
-	return t.Execute(w, data)
+	td.Error = app.Session.PopString(r.Context(), "error")
+	td.Flash = app.Session.PopString(r.Context(), "flash")
+
+	return t.Execute(w, td)
 }
