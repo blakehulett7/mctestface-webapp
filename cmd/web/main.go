@@ -1,16 +1,16 @@
 package main
 
 import (
-	"database/sql"
 	"flag"
 	"log"
 	"net/http"
 
 	"github.com/alexedwards/scs/v2"
+	"github.com/blakehulett7/mctestface-webapp/pkg/db"
 )
 
 type State struct {
-	DB      *sql.DB
+	DB      db.PostgresConn
 	DSN     string
 	Session *scs.SessionManager
 }
@@ -27,7 +27,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	app.DB = conn
+	app.DB = db.PostgresConn{conn}
 	app.Session = GetSession()
 
 	router := app.Routes()
