@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -12,18 +13,32 @@ import (
 
 func Test_app_Handlers(t *testing.T) {
 	tests := []struct {
-		Name               string
-		Url                string
-		ExpectedStatusCode int
+		Name                    string
+		Url                     string
+		ExpectedStatusCode      int
+		ExpectedUrl             string
+		ExpectedFirstStatusCode int
 	}{
-		{"Home", "/", http.StatusOK},
-		{"NotFound", "/nirvana", http.StatusNotFound},
+		{"Home", "/", http.StatusOK, "/", http.StatusOK},
+		{"NotFound", "/nirvana", http.StatusNotFound, "/nirvana", http.StatusNotFound},
+		{"Profile", "/user/profile", http.StatusOK, "/", http.StatusTemporaryRedirect},
 	}
 
 	routes := app.Routes()
 
 	test_server := httptest.NewTLSServer(routes)
 	defer test_server.Close()
+
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+
+	first_statuscode_client := &http.Client{
+		Transport: transport,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
 
 	for _, test := range tests {
 		res, err := test_server.Client().Get(test_server.URL + test.Url)
@@ -33,6 +48,15 @@ func Test_app_Handlers(t *testing.T) {
 
 		if res.StatusCode != test.ExpectedStatusCode {
 			t.Errorf("%s failed: expected status %d but got status %d", test.Name, test.ExpectedStatusCode, res.StatusCode)
+		}
+
+		if res.Request.URL.Path != test.ExpectedUrl {
+			t.Errorf("%s failed: expected final url %s but got %s\n", test.Name, test.ExpectedUrl, res.Request.URL.Path)
+		}
+
+		res_for_first_status_code, _ := first_statuscode_client.Get(test_server.URL + test.Url)
+		if res_for_first_status_code.StatusCode != test.ExpectedFirstStatusCode {
+			t.Errorf("%s failed: expected first status code %d but got %d", test.Name, test.ExpectedFirstStatusCode, res_for_first_status_code.StatusCode)
 		}
 	}
 }
