@@ -11,8 +11,16 @@ type ContextKey string
 
 const ContextUserKey ContextKey = "user_ip"
 
-func (app *State) IpFromContext(ctx context.Context) string {
-	return ctx.Value(ContextUserKey).(string)
+func (app *State) AuthMiddleware(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !app.Session.Exists(r.Context(), "user") {
+			app.Session.Put(r.Context(), "error", "Log in first!")
+			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+			return
+		}
+
+		h.ServeHTTP(w, r)
+	})
 }
 
 func (app *State) AddIpToContext(h http.Handler) http.Handler {
@@ -48,4 +56,8 @@ func GetIP(r *http.Request) (string, error) {
 	}
 
 	return ip, err
+}
+
+func (app *State) IpFromContext(ctx context.Context) string {
+	return ctx.Value(ContextUserKey).(string)
 }

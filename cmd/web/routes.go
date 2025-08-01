@@ -17,6 +17,11 @@ func (app *State) Routes() http.Handler {
 	router.Get("/", app.Home)
 	router.Get("/user/profile", app.Profile)
 
+	router.Route("/user", func(r chi.Router) {
+		r.Use(app.AuthMiddleware)
+		r.Get("/profile", app.Profile)
+	})
+
 	router.Post("/login", app.Login)
 
 	router.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("../../static"))))
