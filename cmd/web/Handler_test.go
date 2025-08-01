@@ -88,6 +88,33 @@ func Test_app_Login(t *testing.T) {
 			ExpectedStatusCode: http.StatusSeeOther,
 			ExpectedLocation:   "/user/profile",
 		},
+		{
+			Name: "invalid form",
+			PostedData: url.Values{
+				"email":    {""},
+				"password": {""},
+			},
+			ExpectedStatusCode: http.StatusSeeOther,
+			ExpectedLocation:   "/",
+		},
+		{
+			Name: "bad email",
+			PostedData: url.Values{
+				"email":    {"wrongemail@example.com"},
+				"password": {"wrong password"},
+			},
+			ExpectedStatusCode: http.StatusSeeOther,
+			ExpectedLocation:   "/",
+		},
+		{
+			Name: "bad password",
+			PostedData: url.Values{
+				"email":    {"admin@example.com"},
+				"password": {"wrong password"},
+			},
+			ExpectedStatusCode: http.StatusSeeOther,
+			ExpectedLocation:   "/",
+		},
 	}
 
 	for _, test := range tests {
