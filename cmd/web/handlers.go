@@ -20,6 +20,16 @@ type TemplateData struct {
 	User  data.User
 }
 
+func (app *State) Authenticate(r *http.Request, user *data.User, password string) bool {
+	valid, err := user.PasswordMatches(password)
+	if !valid || err != nil {
+		return false
+	}
+
+	app.Session.Put(r.Context(), "user", user)
+	return true
+}
+
 func (app *State) Home(w http.ResponseWriter, r *http.Request) {
 	data := make(map[string]any)
 
@@ -62,7 +72,11 @@ func (app *State) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println(password, user)
+	if !app.Authenticate(r, user, password) {
+		app.Session.Put(r.Context(), "error", "Invalid login credentials")
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
 
 	app.Session.RenewToken(r.Context())
 

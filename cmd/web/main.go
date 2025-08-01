@@ -1,11 +1,13 @@
 package main
 
 import (
+	"encoding/gob"
 	"flag"
 	"log"
 	"net/http"
 
 	"github.com/alexedwards/scs/v2"
+	"github.com/blakehulett7/mctestface-webapp/pkg/data"
 	"github.com/blakehulett7/mctestface-webapp/pkg/db"
 )
 
@@ -18,6 +20,7 @@ type State struct {
 func main() {
 	log.Println("Dominus Iesus Christus")
 
+	gob.Register(data.User{})
 	app := State{}
 
 	flag.StringVar(&app.DSN, "dsn", "host=localhost port=5433 user=postgres password=postgres dbname=users sslmode=disable timezone=UTC connect_timeout=5", "Postgres connection")
