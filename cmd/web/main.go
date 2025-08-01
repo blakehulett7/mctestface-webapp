@@ -1,6 +1,8 @@
 package main
 
 import (
+	"database/sql"
+	"flag"
 	"log"
 	"net/http"
 
@@ -8,6 +10,8 @@ import (
 )
 
 type State struct {
+	DB      *sql.DB
+	DSN     string
 	Session *scs.SessionManager
 }
 
@@ -15,11 +19,20 @@ func main() {
 	log.Println("Dominus Iesus Christus")
 
 	app := State{}
+
+	flag.StringVar(&app.DSN, "dsn", "host=localhost port=5433 user=postgres password=postgres dbname=users sslmode=disable timezone=UTC connect_timeout=5", "Postgres connection")
+	flag.Parse()
+	conn, err := app.ConnectToDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	app.DB = conn
 	app.Session = GetSession()
 
 	router := app.Routes()
 
-	err := http.ListenAndServe(":1000", router)
+	err = http.ListenAndServe(":1000", router)
 	if err != nil {
 		log.Fatal(err)
 	}
