@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/blakehulett7/mctestface-webapp/pkg/data"
 )
 
 func Test_application_AddIPToContext(t *testing.T) {
@@ -51,6 +53,42 @@ func Test_application_AddIPToContext(t *testing.T) {
 		}
 
 		HandlerToTest.ServeHTTP(httptest.NewRecorder(), req)
+	}
+}
+
+func Test_middleware_AuthMiddleware(t *testing.T) {
+	input_handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+	})
+
+	tests := []struct {
+		Name     string
+		IsAuthed bool
+	}{
+		{"logged in", true},
+		{"not logged in", false},
+	}
+
+	for _, test := range tests {
+		handler_to_test := app.AuthMiddleware(input_handler)
+
+		req := httptest.NewRequest("GET", "http://testing", nil)
+		req = AddContextAndSessionToRequest(req, app)
+
+		if test.IsAuthed {
+			app.Session.Put(req.Context(), "user", data.User{ID: 1})
+		}
+
+		w := httptest.NewRecorder()
+		handler_to_test.ServeHTTP(w, req)
+
+		if test.IsAuthed && w.Code != http.StatusOK {
+			t.Errorf("%s failed: expected status %d but got %d\n", test.Name, http.StatusOK, w.Code)
+		}
+
+		if !test.IsAuthed && w.Code != http.StatusTemporaryRedirect {
+			t.Errorf("%s failed: expected status %d but got %d\n", test.Name, http.StatusTemporaryRedirect, w.Code)
+		}
 	}
 }
 
