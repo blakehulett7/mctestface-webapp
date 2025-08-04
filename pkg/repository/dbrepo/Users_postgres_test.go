@@ -143,3 +143,5 @@ func TestPostgresDBRepoAllUsers(t *testing.T) {
 		t.Errorf("all users reports wrong size.. expected 1 but got %d", len(users))
 	}
 }
+
+// More tests go down here...
