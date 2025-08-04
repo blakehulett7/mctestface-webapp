@@ -1,12 +1,9 @@
 package dbrepo
 
 import (
-	"context"
 	"database/sql"
-	"time"
 
 	"github.com/blakehulett7/mctestface-webapp/pkg/data"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type TestDBRepo struct {
@@ -16,7 +13,7 @@ func (m *TestDBRepo) Connection() *sql.DB {
 	return nil
 }
 
-func (m *TestDBRepo) AllUser() ([]*data.User, error) {
+func (m *TestDBRepo) AllUsers() ([]*data.User, error) {
 	var users []*data.User
 
 	return users, nil
