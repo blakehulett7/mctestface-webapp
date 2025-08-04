@@ -132,3 +132,14 @@ func TestPostgresDBRepoInsertUser(t *testing.T) {
 		t.Errorf("Insert User returned wrong id.. expected 1, but got %d", id)
 	}
 }
+
+func TestPostgresDBRepoAllUsers(t *testing.T) {
+	users, err := testRepo.AllUsers()
+	if err != nil {
+		t.Errorf("could not get all users: %s\n", err)
+	}
+
+	if len(users) != 1 {
+		t.Errorf("all users reports wrong size.. expected 1 but got %d", len(users))
+	}
+}
