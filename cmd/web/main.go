@@ -8,11 +8,12 @@ import (
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/blakehulett7/mctestface-webapp/pkg/data"
-	"github.com/blakehulett7/mctestface-webapp/pkg/db"
+	"github.com/blakehulett7/mctestface-webapp/pkg/repository"
+	"github.com/blakehulett7/mctestface-webapp/pkg/repository/dbrepo"
 )
 
 type State struct {
-	DB      db.PostgresConn
+	DB      repository.DatabaseRepo
 	DSN     string
 	Session *scs.SessionManager
 }
@@ -31,7 +32,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	app.DB = db.PostgresConn{DB: conn}
+	app.DB = &dbrepo.PostgresDBRepo{DB: conn}
 	app.Session = GetSession()
 
 	router := app.Routes()
