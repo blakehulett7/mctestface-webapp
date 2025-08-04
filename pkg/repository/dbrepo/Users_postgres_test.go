@@ -6,7 +6,10 @@ import (
 	"log"
 	"os"
 	"testing"
+	"time"
 
+	"github.com/blakehulett7/mctestface-webapp/pkg/data"
+	"github.com/blakehulett7/mctestface-webapp/pkg/repository"
 	_ "github.com/jackc/pgconn"
 	_ "github.com/jackc/pgx/v4"
 	_ "github.com/jackc/pgx/v4/stdlib"
@@ -26,9 +29,9 @@ var (
 var resource *dockertest.Resource
 var pool *dockertest.Pool
 var testDB *sql.DB
+var testRepo repository.DatabaseRepo
 
 func TestMain(m *testing.M) {
-	log.Println("Sancta Maria...")
 	p, err := dockertest.NewPool("")
 	if err != nil {
 		log.Fatalf("Docker not running: %s\n", err)
@@ -77,6 +80,8 @@ func TestMain(m *testing.M) {
 		log.Fatalf("Could not populate db: %s\n", err)
 	}
 
+	testRepo = &PostgresDBRepo{DB: testDB}
+
 	code := m.Run()
 
 	err = pool.Purge(resource)
@@ -104,5 +109,26 @@ func TestPingDb(t *testing.T) {
 	err := testDB.Ping()
 	if err != nil {
 		t.Error("can't ping db...")
+	}
+}
+
+func TestPostgresDBRepoInsertUser(t *testing.T) {
+	testUser := data.User{
+		FirstName: "Admin",
+		LastName:  "User",
+		Email:     "admin@example.com",
+		Password:  "secret",
+		IsAdmin:   1,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	id, err := testRepo.InsertUser(testUser)
+	if err != nil {
+		t.Errorf("Could not insert user: %s\n", err)
+	}
+
+	if id != 1 {
+		t.Errorf("Insert User returned wrong id.. expected 1, but got %d", id)
 	}
 }
