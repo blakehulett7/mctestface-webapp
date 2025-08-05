@@ -162,5 +162,31 @@ func (app *State) UploadFiles(r *http.Request, uploadDir string) ([]*UploadedFil
 }
 
 func (app *State) UploadProfilePicture(w http.ResponseWriter, r *http.Request) {
+	files, err := app.UploadFiles(r, "../../static/img/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
+	user := app.Session.Get(r.Context(), "user").(data.User)
+
+	image := data.UserImage{
+		UserID:   user.ID,
+		FileName: files[0].OriginalFileName,
+	}
+
+	_, err = app.DB.InsertUserImage(image)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	updatedUser, err := app.DB.GetUser(user.ID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	app.Session.Put(r.Context(), "user", updatedUser)
+	http.Redirect(w, r, "/user/profile", http.StatusSeeOther)
 }

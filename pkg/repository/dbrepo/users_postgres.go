@@ -232,11 +232,16 @@ func (m *PostgresDBRepo) InsertUserImage(i data.UserImage) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	stmt := `delete from users_images where user_id = $1`
-	_, err := m.DB.ExecContext(ctx, stmt, i.UserID)
-	if err != nil {
-		return 0, err
-	}
+	var stmt string
+	var err error
+
+	/*
+		stmt := `delete from users_images where user_id = $1`
+		_, err := m.DB.ExecContext(ctx, stmt, i.UserID)
+		if err != nil {
+			return 0, err
+		}
+	*/
 
 	var newID int
 	stmt = `insert into user_images (user_id, file_name, created_at, updated_at)
