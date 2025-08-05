@@ -144,4 +144,38 @@ func TestPostgresDBRepoAllUsers(t *testing.T) {
 	}
 }
 
+func FuzzInsertUser(f *testing.F) {
+
+	f.Fuzz(func(t *testing.T, firstName, lastName, email, password string) {
+		inserted_user := data.User{
+			FirstName: firstName,
+			LastName:  lastName,
+			Email:     email,
+			Password:  password,
+		}
+
+		id, err := testRepo.InsertUser(inserted_user)
+		if err != nil {
+			t.Errorf("Could not insert user: error %s\n", err)
+		}
+
+		retreived_user, err := testRepo.GetUser(id)
+		if err != nil {
+			t.Errorf("Could not get user %d: error %s\n", id, err)
+		}
+
+		if retreived_user.FirstName != firstName {
+			t.Errorf("User first name not saved correctly.. expected %s, got %s", firstName, retreived_user.FirstName)
+		}
+
+		if retreived_user.LastName != lastName {
+			t.Errorf("User last name not saved correctly.. expected %s, got %s", lastName, retreived_user.LastName)
+		}
+
+		if retreived_user.Email != email {
+			t.Errorf("User email not saved correctly.. expected %s, got %s", email, retreived_user.Email)
+		}
+	})
+}
+
 // More tests go down here...
