@@ -104,6 +104,10 @@ func (app *State) Render(w http.ResponseWriter, r *http.Request, template_file s
 	td.Error = app.Session.PopString(r.Context(), "error")
 	td.Flash = app.Session.PopString(r.Context(), "flash")
 
+	if app.Session.Exists(r.Context(), "user") {
+		td.User = app.Session.Get(r.Context(), "user").(data.User)
+	}
+
 	return t.Execute(w, td)
 }
 

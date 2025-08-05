@@ -24,7 +24,7 @@ func (app *State) Routes() http.Handler {
 
 	router.Post("/login", app.Login)
 
-	router.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("../../static"))))
+	router.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 
 	return router
 }
