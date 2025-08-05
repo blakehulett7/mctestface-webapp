@@ -19,6 +19,7 @@ func (app *State) Routes() http.Handler {
 	router.Route("/user", func(r chi.Router) {
 		r.Use(app.AuthMiddleware)
 		r.Get("/profile", app.Profile)
+		r.Post("/upload-profile-pic", app.UploadProfilePicture)
 	})
 
 	router.Post("/login", app.Login)

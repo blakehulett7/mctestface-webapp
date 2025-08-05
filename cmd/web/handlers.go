@@ -1,10 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
+	"io"
 	"log"
 	"net/http"
+	"os"
 	"path"
+	"path/filepath"
 	"time"
 
 	"github.com/blakehulett7/mctestface-webapp/pkg/data"
@@ -101,4 +105,62 @@ func (app *State) Render(w http.ResponseWriter, r *http.Request, template_file s
 	td.Flash = app.Session.PopString(r.Context(), "flash")
 
 	return t.Execute(w, td)
+}
+
+type UploadedFile struct {
+	OriginalFileName string
+	FileSize         int64
+}
+
+func (app *State) UploadFiles(r *http.Request, uploadDir string) ([]*UploadedFile, error) {
+	var uploadedFiles []*UploadedFile
+
+	err := r.ParseMultipartForm(int64(1024 * 1024 * 5))
+	if err != nil {
+		return nil, fmt.Errorf("File must be less than 5MB")
+	}
+
+	for _, fileHeaders := range r.MultipartForm.File {
+		for _, header := range fileHeaders {
+			uploadedFiles, err = func(uploadedFiles []*UploadedFile) ([]*UploadedFile, error) {
+				var uploadedFile UploadedFile
+				infile, err := header.Open()
+				if err != nil {
+					return nil, err
+				}
+				defer infile.Close()
+
+				uploadedFile.OriginalFileName = header.Filename
+
+				var outfile *os.File
+				defer outfile.Close()
+
+				outfile, err = os.Create(filepath.Join(uploadDir, uploadedFile.OriginalFileName))
+				if err != nil {
+					return nil, err
+				}
+
+				fileSize, err := io.Copy(outfile, infile)
+				if err != nil {
+					return nil, err
+				}
+
+				uploadedFile.FileSize = fileSize
+				uploadedFiles = append(uploadedFiles, &uploadedFile)
+
+				return uploadedFiles, nil
+
+			}(uploadedFiles)
+
+			if err != nil {
+				return uploadedFiles, err
+			}
+		}
+	}
+
+	return uploadedFiles, nil
+}
+
+func (app *State) UploadProfilePicture(w http.ResponseWriter, r *http.Request) {
+
 }
