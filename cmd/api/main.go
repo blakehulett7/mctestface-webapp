@@ -38,7 +38,7 @@ func main() {
 
 	log.Println("In nomine Patris, et Filii, et Spiritus Sancti")
 
-	err = http.ListenAndServe(fmt.Sprintf(":%d", port), app.Routes)
+	err = http.ListenAndServe(fmt.Sprintf(":%d", port), app.Routes())
 	if err != nil {
 		log.Println(err)
 	}
