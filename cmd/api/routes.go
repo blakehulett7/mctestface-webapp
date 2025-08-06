@@ -21,6 +21,7 @@ func (app *Bridge) Routes() http.Handler {
 			Message string `json:"message"`
 		}{"Gratia Plena"}
 
+		WriteJson(w, payload)
 	})
 
 	router.Route("/users", func(mux chi.Router) {
