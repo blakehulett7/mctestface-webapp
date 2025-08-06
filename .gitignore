@@ -35,3 +35,5 @@ postgres-data/
 cmd/web/tmp/main
 *.db
 *.stat
+
+.DS_Store
