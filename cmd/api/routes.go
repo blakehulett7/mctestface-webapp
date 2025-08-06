@@ -16,6 +16,13 @@ func (app *Bridge) Routes() http.Handler {
 	router.Post("/authenticate", app.Authenticate)
 	router.Post("/refresh", app.Refresh)
 
+	router.Get("/test", func(w http.ResponseWriter, r *http.Request) {
+		payload := struct {
+			Message string `json:"message"`
+		}{"Gratia Plena"}
+
+	})
+
 	router.Route("/users", func(mux chi.Router) {
 		mux.Get("/", app.GetAllUsers)
 		mux.Post("/", app.CreateUser)
